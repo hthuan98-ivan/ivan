@@ -22,7 +22,7 @@ public class TikiScrollTest extends BaseTest {
         try {
             // Chờ tối đa 5 giây để nút đóng quảng cáo xuất hiện và có thể nhấp được
             // Đây là một locator linh hoạt hơn, tìm bất kỳ thẻ div nào có class chứa 'Popup__Close'
-            By adCloseButtonLocator = By.xpath("//div[contains(@class, 'Popup__Close')]");
+            By adCloseButtonLocator = By.xpath("//*[@id=\"VIP_BUNDLE\"]/div[2]/div/picture[1]/img");
             
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
             WebElement adCloseButton = wait.until(ExpectedConditions.elementToBeClickable(adCloseButtonLocator));
