@@ -13,10 +13,6 @@ public class BaseTest {
 
     @BeforeMethod
     public void setUp() {
-        // Chú ý: Đảm bảo bạn đã cấu hình WebDriverManager hoặc đặt chromedriver
-        // trong PATH của hệ thống để không cần dòng System.setProperty này.
-        // System.setProperty("webdriver.chrome.driver", "/path/to/your/chromedriver");
-
         driver = new ChromeDriver();
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
