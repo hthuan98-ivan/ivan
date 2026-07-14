@@ -12,7 +12,7 @@ public class TikiProductDetailPage {
     private WebDriver driver;
 
     // **CẬP NHẬT**: Thay đổi locator từ By.id sang By.xpath để tìm theo văn bản của nút.
-    private final By ADD_TO_CART_BUTTON = By.xpath("//button[text()='Thêm vào giỏ']");
+    private final By ADD_TO_CART_BUTTON = By.xpath("//button[@data-view-id='pdp_add_to_cart_button']");
     
     private final By ADDED_SUCCESS_POPUP = By.xpath("//div[contains(text(), 'Thêm vào giỏ hàng thành công')]");
 
