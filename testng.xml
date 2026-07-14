@@ -1,5 +1,4 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
-<!-- Quay lại cấu trúc chạy song song theo từng khối <test> -->
 <suite name="TikiTestSuite" verbose="1" parallel="tests" thread-count="4">
     <test name="TikiSearchTest">
         <classes>
@@ -19,6 +18,11 @@
     <test name="TikiAdRedirectTest">
         <classes>
             <class name="com.example.tests.TikiAdRedirectTest"/>
+        </classes>
+    </test>
+    <test name="TikiAddToCartTest">
+        <classes>
+            <class name="com.example.tests.TikiAddToCartTest"/>
         </classes>
     </test>
 </suite>

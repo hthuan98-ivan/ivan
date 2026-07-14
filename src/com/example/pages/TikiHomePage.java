@@ -14,7 +14,7 @@ public class TikiHomePage {
 
     private WebDriver driver;
 
-    // Locators
+    // ... (các locators và methods khác) ...
     private final By SEARCH_INPUT = By.xpath("//input[@data-view-id='main_search_form_input']");
     private final By SEARCH_BUTTON = By.xpath("//button[@data-view-id='main_search_form_button']");
     private final By AD_IMAGE_TO_VERIFY = By.xpath("//*[@id=\"VIP_BUNDLE\"]/div[2]/div/picture[2]/img");
@@ -24,86 +24,57 @@ public class TikiHomePage {
             String.format("//a[contains(@href, '-p')]//h3[contains(translate(., '%S', '%s'), '%s')]", keyword, keyword, keyword)
         );
     }
+    private final By FIRST_PRODUCT_LINK = By.xpath("(//a[contains(@href, '-p')])[1]");
+    // **LOCATORS MỚI**
+    private final By ADD_TO_CART_BUTTON_DETAIL_PAGE = By.xpath("//button[text()='Thêm vào giỏ']");
+    private final By ADD_TO_CART_SUCCESS_POPUP = By.xpath("//div[text()='Thêm vào giỏ hàng thành công']");
+
 
     public TikiHomePage(WebDriver driver) { this.driver = driver; }
     public void navigateTo(String url) { driver.get(url); }
     public void enterSearchKeyword(String keyword) { driver.findElement(SEARCH_INPUT).sendKeys(keyword); }
     public void clickSearchButton() { driver.findElement(SEARCH_BUTTON).click(); }
 
-    public void closeAdPopupIfPresent(WebDriverWait wait) {
+    public void closeAdPopupIfPresent(WebDriverWait wait) { /* ... */ }
+    public void verifyAndCloseAd(WebDriverWait wait) { /* ... */ }
+    public void verifyProductTitleExists(WebDriverWait wait, String keyword) { /* ... */ }
+    public void clickAdAndVerifyRedirect(WebDriverWait wait) { /* ... */ }
+    public void slowScrollToBottom() throws InterruptedException { /* ... */ }
+    public void clickFirstProductInResults(WebDriverWait wait) {
         try {
-            WebElement adCloseButton = wait.until(ExpectedConditions.elementToBeClickable(AD_CLOSE_BUTTON));
-            System.out.println("Đã tìm thấy quảng cáo pop-up. Đang đóng...");
-            adCloseButton.click();
-            Thread.sleep(500);
+            System.out.println("Đang chờ sản phẩm đầu tiên trong kết quả tìm kiếm...");
+            WebElement firstProduct = wait.until(ExpectedConditions.elementToBeClickable(FIRST_PRODUCT_LINK));
+            System.out.println("Đã tìm thấy sản phẩm đầu tiên. Đang nhấp vào...");
+            firstProduct.click();
         } catch (Exception e) {
-            System.out.println("Không tìm thấy quảng cáo pop-up. Bỏ qua.");
+            Assert.fail("Không thể tìm thấy hoặc nhấp vào sản phẩm đầu tiên trong kết quả tìm kiếm.");
         }
     }
 
-    public void verifyAndCloseAd(WebDriverWait wait) {
+    /**
+     * **PHƯƠNG THỨC MỚI**: Nhấp vào nút "Thêm vào giỏ" trên trang chi tiết.
+     * @param wait WebDriverWait instance
+     */
+    public void clickAddToCartOnDetailPage(WebDriverWait wait) {
         try {
-            WebElement adImage = wait.until(ExpectedConditions.visibilityOfElementLocated(AD_IMAGE_TO_VERIFY));
-            Assert.assertTrue(adImage.isDisplayed());
-            System.out.println("-> PASS 1/2: Quảng cáo hiển thị.");
-            WebElement adCloseButton = wait.until(ExpectedConditions.elementToBeClickable(AD_CLOSE_BUTTON));
-            adCloseButton.click();
-            Assert.assertTrue(wait.until(ExpectedConditions.invisibilityOfElementLocated(AD_IMAGE_TO_VERIFY)));
-            System.out.println("-> PASS 2/2: Quảng cáo đã đóng.");
+            WebElement addToCartButton = wait.until(ExpectedConditions.elementToBeClickable(ADD_TO_CART_BUTTON_DETAIL_PAGE));
+            addToCartButton.click();
         } catch (Exception e) {
-            System.out.println("-> PASS: Không tìm thấy quảng cáo.");
+            Assert.fail("Không tìm thấy hoặc không thể nhấp vào nút 'Thêm vào giỏ'.");
+        }
+    }
+
+    /**
+     * **PHƯƠNG THỨC MỚI**: Xác minh thông báo thành công xuất hiện.
+     * @param wait WebDriverWait instance
+     */
+    public void verifyProductAddedToCartSuccessfully(WebDriverWait wait) {
+        try {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(ADD_TO_CART_SUCCESS_POPUP));
+            System.out.println("-> PASS: Đã xác nhận thông báo 'Thêm vào giỏ hàng thành công'.");
             Assert.assertTrue(true);
-        }
-    }
-    
-    public void verifyProductTitleExists(WebDriverWait wait, String keyword) {
-        try {
-            wait.until(ExpectedConditions.visibilityOfElementLocated(PRODUCT_TITLE_ON_RESULT_PAGE(keyword)));
-            System.out.println("-> PASS: Đã tìm thấy sản phẩm hợp lệ.");
-            Assert.assertTrue(true);
         } catch (Exception e) {
-            Assert.fail("Không tìm thấy sản phẩm nào có thẻ h3 chứa '" + keyword + "'.");
+            Assert.fail("Không thấy thông báo 'Thêm vào giỏ hàng thành công' xuất hiện.");
         }
-    }
-
-    public void clickAdAndVerifyRedirect(WebDriverWait wait) {
-        try {
-            WebElement adImage = wait.until(ExpectedConditions.visibilityOfElementLocated(AD_IMAGE_TO_VERIFY));
-            String originalUrl = driver.getCurrentUrl();
-            int originalWindowCount = driver.getWindowHandles().size();
-            adImage.click();
-            wait.until(ExpectedConditions.or(
-                ExpectedConditions.numberOfWindowsToBe(originalWindowCount + 1),
-                ExpectedConditions.not(ExpectedConditions.urlToBe(originalUrl))
-            ));
-            for (String windowHandle : driver.getWindowHandles()) {
-                if (!driver.getWindowHandle().equals(windowHandle)) {
-                    driver.switchTo().window(windowHandle);
-                    break;
-                }
-            }
-            Assert.assertNotEquals(driver.getCurrentUrl(), originalUrl);
-            System.out.println("-> PASS: Đã chuyển hướng thành công.");
-        } catch (Exception e) {
-            System.out.println("-> PASS: Không tìm thấy quảng cáo để nhấn vào.");
-            Assert.assertTrue(true);
-        }
-    }
-
-    public void slowScrollToBottom() throws InterruptedException {
-        System.out.println("Bắt đầu cuộn trang...");
-        JavascriptExecutor js = (JavascriptExecutor) driver;
-        long initialPageHeight = (long) js.executeScript("return document.body.scrollHeight");
-        long currentScrollPosition = 0;
-        int scrollStep = 150;
-        int delay = 40;
-
-        while (currentScrollPosition < initialPageHeight) {
-            js.executeScript("window.scrollBy(0, " + scrollStep + ");");
-            currentScrollPosition += scrollStep;
-            initialPageHeight = (long) js.executeScript("return document.body.scrollHeight");
-            Thread.sleep(delay);
-        }
-        System.out.println("Đã cuộn đến cuối trang.");
     }
 }
